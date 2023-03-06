@@ -29,6 +29,7 @@ export interface DenoResolverPluginOptions {
 }
 
 export const IN_NODE_MODULES = Symbol("IN_NODE_MODULES");
+export const IN_NODE_MODULES_RESOLVED = Symbol("IN_NODE_MODULES_RESOLVED");
 
 /**
  * The Deno resolver plugin performs relative->absolute specifier resolution
@@ -87,6 +88,7 @@ export function denoResolverPlugin(
         // Internal resolution is detected by either the "IN_NODE_MODULES" flag
         // being set on the resolve args through the pluginData field, or by
         // the importer being in the nodeModulesPaths set.
+        if (args.pluginData === IN_NODE_MODULES_RESOLVED) return {};
         if (args.pluginData === IN_NODE_MODULES) return undefined;
         if (nodeModulesPaths.has(args.importer)) {
           const res = await build.resolve(args.path, {

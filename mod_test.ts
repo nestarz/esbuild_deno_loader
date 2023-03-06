@@ -286,7 +286,7 @@ test("local json", LOADERS, async (esbuild, loader) => {
 
 test("npm specifiers - preact", LOADERS, async (esbuild, loader) => {
   const res = await esbuild.build({
-    plugins: [...denoPlugins({ loader, cwd: Deno.cwd(), nodeModulesDir: true })],
+    plugins: [...denoPlugins({ loader })],
     write: false,
     format: "esm",
     bundle: true,
@@ -305,7 +305,7 @@ test("npm specifiers - preact", LOADERS, async (esbuild, loader) => {
 
 test("npm specifiers - react", LOADERS, async (esbuild, loader) => {
   const res = await esbuild.build({
-    plugins: [...denoPlugins({ loader, cwd: Deno.cwd(), nodeModulesDir: true })],
+    plugins: [...denoPlugins({ loader })],
     write: false,
     format: "esm",
     bundle: true,

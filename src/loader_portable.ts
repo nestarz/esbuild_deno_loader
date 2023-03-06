@@ -35,6 +35,7 @@ export class PortableLoader implements Loader {
         const npmSpecifier = parseNpmSpecifier(specifier);
         return {
           kind: "npm",
+          packageId: "",
           packageName: npmSpecifier.name,
           path: npmSpecifier.path ?? "",
         };

@@ -1,4 +1,4 @@
-import { esbuild, fromFileUrl } from "../deps.ts";
+import { esbuild, fromFileUrl, join } from "../deps.ts";
 import * as deno from "./deno.ts";
 import {
   Loader,
@@ -28,6 +28,7 @@ export class NativeLoader implements Loader {
       const parsed = parseNpmSpecifier(new URL(entry.specifier));
       return {
         kind: "npm",
+        packageId: entry.npmPackage,
         packageName: parsed.name,
         path: parsed.path ?? "",
       };
@@ -60,4 +61,33 @@ export class NativeLoader implements Loader {
     }
     return res;
   }
+
+  nodeModulesDirForPackage(npmPackageId: string): string {
+    const npmPackage = this.#infoCache.getNpmPackage(npmPackageId);
+    if (!npmPackage) throw new Error("NPM package not found.");
+    return join(
+      DENO_DIR,
+      "npm",
+      "registry.npmjs.org",
+      npmPackage.name,
+      npmPackage.version,
+    );
+  }
+
+  packageIdFromNameInPackage(
+    name: string,
+    parentPackageId: string,
+  ): string {
+    const parentPackage = this.#infoCache.getNpmPackage(parentPackageId);
+    if (!parentPackage) throw new Error("NPM package not found.");
+    if (parentPackage.name === name) return parentPackageId;
+    for (const dep of parentPackage.dependencies) {
+      const depPackage = this.#infoCache.getNpmPackage(dep);
+      if (!depPackage) throw new Error("NPM package not found.");
+      if (depPackage.name === name) return dep;
+    }
+    throw new Error("NPM package not found.");
+  }
 }
+
+const DENO_DIR = "/Users/lucacasonato/Library/Caches/deno";

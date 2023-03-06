@@ -4,6 +4,9 @@ import { MediaType } from "./deno.ts";
 export interface Loader {
   resolve(specifier: URL): Promise<LoaderResolution>;
   loadEsm(specifier: URL): Promise<esbuild.OnLoadResult>;
+
+  packageIdFromNameInPackage?(name: string, parentPackageId: string): string;
+  nodeModulesDirForPackage?(npmPackageId?: string): string;
 }
 
 export type LoaderResolution =
@@ -18,6 +21,7 @@ export interface LoaderResolutionEsm {
 
 export interface LoaderResolutionNpm {
   kind: "npm";
+  packageId: string;
   packageName: string;
   path: string;
 }

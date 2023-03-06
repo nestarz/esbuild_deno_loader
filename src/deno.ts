@@ -21,6 +21,7 @@ interface InfoOutput {
   roots: string[];
   modules: ModuleEntry[];
   redirects: Record<string, string>;
+  npmPackages: Record<string, NpmPackage>;
 }
 
 export type ModuleEntry =
@@ -62,6 +63,12 @@ export interface ModuleEntryNpm extends ModuleEntryBase {
 export interface ModuleEntryNode extends ModuleEntryBase {
   kind: "node";
   moduleName: string;
+}
+
+export interface NpmPackage {
+  name: string;
+  version: string;
+  dependencies: string[];
 }
 
 export interface InfoOptions {
@@ -127,6 +134,7 @@ export class InfoCache {
 
   #modules: Map<string, ModuleEntry> = new Map();
   #redirects: Map<string, string> = new Map();
+  #npmPackages: Map<string, NpmPackage> = new Map();
 
   constructor(options: InfoOptions = {}) {
     this.#options = options;
@@ -146,6 +154,10 @@ export class InfoCache {
     return entry;
   }
 
+  getNpmPackage(id: string): NpmPackage | undefined {
+    return this.#npmPackages.get(id);
+  }
+
   #resolve(specifier: string): string {
     return this.#redirects.get(specifier) ?? specifier;
   }
@@ -156,7 +168,7 @@ export class InfoCache {
   }
 
   async #load(specifier: string): Promise<void> {
-    const { modules, redirects } = await info(specifier, {
+    const { modules, redirects, npmPackages } = await info(specifier, {
       importMap: this.#options.importMap,
     });
     for (const module of modules) {
@@ -164,6 +176,9 @@ export class InfoCache {
     }
     for (const [from, to] of Object.entries(redirects)) {
       this.#redirects.set(from, to);
+    }
+    for (const [id, npmPackage] of Object.entries(npmPackages)) {
+      this.#npmPackages.set(id, npmPackage);
     }
 
     specifier = this.#resolve(specifier);
