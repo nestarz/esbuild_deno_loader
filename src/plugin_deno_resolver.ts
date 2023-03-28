@@ -115,7 +115,7 @@ export function denoResolverPlugin(
           );
           resolved = new URL(res);
         } else {
-          resolved = new URL(args.path, referrer);
+          resolved = new URL(args.path, isStdin ? import.meta.url : referrer);
         }
 
         // Now pass the resolved specifier back into the resolver, for a second
